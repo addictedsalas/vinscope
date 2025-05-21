@@ -1,10 +1,11 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Image from "next/image";
 import Header from "~/components/Header";
 import VinSearchForm from "~/components/VinSearchForm";
 import VehicleInfo from "~/components/VehicleInfo";
+import LoginModal from "../components/LoginModal";
 
 export default function HomePage() {
   const [isLoading, setIsLoading] = useState(false);
@@ -14,6 +15,11 @@ export default function HomePage() {
   const [isLegitimate, setIsLegitimate] = useState(false);
   const [potentiallyFraudulent, setPotentiallyFraudulent] = useState(false);
   const [message, setMessage] = useState<string | undefined>(undefined);
+  
+  // Authentication state
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [showLoginModal, setShowLoginModal] = useState(false);
+  const [pendingVin, setPendingVin] = useState<string | null>(null);
 
   interface ApiResponse {
     decodedVin?: Record<string, string>;
@@ -24,7 +30,37 @@ export default function HomePage() {
     error?: string;
   }
 
-  const handleSearch = async (vin: string) => {
+  // Handle search request
+  const handleSearch = (vin: string) => {
+    // Check if user is logged in
+    if (!isLoggedIn) {
+      // Store the VIN for later and show login modal
+      setPendingVin(vin);
+      setShowLoginModal(true);
+      return;
+    }
+    
+    // User is logged in, proceed with search
+    executeSearch(vin);
+  };
+
+  // Handle login
+  const handleLogin = (email: string, password: string) => {
+    // In a real app, this would validate credentials with a backend
+    console.log('Login attempt with:', email, password);
+    setIsLoggedIn(true);
+    setShowLoginModal(false);
+    
+    // If there was a pending VIN search, execute it now
+    if (pendingVin) {
+      const vinToSearch = pendingVin;
+      setPendingVin(null);
+      executeSearch(vinToSearch);
+    }
+  };
+  
+  // Execute the actual search
+  const executeSearch = async (vin: string) => {
     setIsLoading(true);
     setError(null);
     setVehicleData(null);
@@ -90,7 +126,11 @@ export default function HomePage() {
       
       {/* Content */}
       <div className="relative z-10 w-full flex flex-col min-h-screen">
-        <Header />
+        <Header 
+          isLoggedIn={isLoggedIn} 
+          onLoginClick={() => setShowLoginModal(true)} 
+          onLogoutClick={() => setIsLoggedIn(false)} 
+        />
         
         <div className="flex-1 flex flex-col items-center justify-center px-4 py-12">
           <div className="max-w-4xl w-full flex flex-col items-center">
@@ -118,6 +158,13 @@ export default function HomePage() {
               isLegitimate={isLegitimate} 
               potentiallyFraudulent={potentiallyFraudulent} 
               message={message} 
+            />
+            
+            {/* Login Modal */}
+            <LoginModal 
+              isOpen={showLoginModal} 
+              onClose={() => setShowLoginModal(false)} 
+              onLogin={handleLogin} 
             />
           </div>
         </div>
