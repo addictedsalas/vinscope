@@ -62,7 +62,7 @@ class MercedesAPI {
         console.error(`Response content: ${text}`);
         return { error: `Unexpected error: ${text}`, status: response.status };
       } else {
-        const data = await response.json();
+        const data = await response.json() as Record<string, unknown>;
         return { data, status: 200 };
       }
     } catch (error) {
@@ -123,7 +123,7 @@ export async function GET(request: NextRequest) {
   const mercedesResult = await client.getVehicleInfo(vin, locale);
   
   // Step 3: Combine the results and determine legitimacy
-  const isLegitimate = mercedesResult.status === 200;
+  const isLegitimate: boolean = mercedesResult.status === 200;
   const response = {
     vin,
     decodedVin,

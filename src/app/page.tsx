@@ -39,7 +39,7 @@ export default function HomePage() {
       
       // Set decoded VIN data if available
       if (data.decodedVin) {
-        setDecodedVin(data.decodedVin as Record<string, string>);
+        setDecodedVin(data.decodedVin);
       }
       
       // Set legitimacy status
@@ -57,7 +57,7 @@ export default function HomePage() {
       
       // Set vehicle data if available
       if (data.mercedesData) {
-        setVehicleData({ vehicleData: data.mercedesData as Record<string, unknown> });
+        setVehicleData({ vehicleData: data.mercedesData });
       }
       
       // Set error if present

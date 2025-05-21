@@ -76,7 +76,7 @@ export default function VehicleInfo({ vehicleData, decodedVin, error, isLegitima
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
               </svg>
               <h2 className="text-2xl font-bold text-red-500 mb-2">{error}</h2>
-              <p className="text-white/70 mb-6">{message || "Please check the VIN and try again"}</p>
+              <p className="text-white/70 mb-6">{message ?? "Please check the VIN and try again"}</p>
             </>
           )}
         </div>
@@ -160,13 +160,13 @@ export default function VehicleInfo({ vehicleData, decodedVin, error, isLegitima
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
               </svg>
             </div>
-            <h1 className="text-3xl font-bold">{vehicle.brand?.text || ''} {vehicle.longType || ''}</h1>
+            <h1 className="text-3xl font-bold">{vehicle.brand?.text ?? ''} {vehicle.longType ?? ''}</h1>
           </div>
-          <p className="text-xl text-white/80">VIN: <span className="font-mono">{vehicle.vin11 || ''}</span></p>
+          <p className="text-xl text-white/80">VIN: <span className="font-mono">{vehicle.vin11 ?? ''}</span></p>
         </div>
         <div className="mt-4 md:mt-0 bg-white/5 px-4 py-2 rounded-lg border border-white/10">
           <p className="text-sm text-white/60">Model Year</p>
-          <p className="text-xl font-semibold">{String(vehicle.modelYear || 'N/A')}</p>
+          <p className="text-xl font-semibold">{typeof vehicle.modelYear === 'string' ? vehicle.modelYear : 'N/A'}</p>
         </div>
       </div>
 
@@ -290,7 +290,7 @@ export default function VehicleInfo({ vehicleData, decodedVin, error, isLegitima
             {vehicle.technicalData?.map((item) => (
               <div key={item.id} className="flex justify-between border-b border-white/10 py-3 hover:bg-white/5 transition-colors rounded px-2">
                 <span className="text-white/70 font-medium">{item.text}:</span>
-                <span className="font-semibold">{item.value} {item.unit || ''}</span>
+                <span className="font-semibold">{item.value} {item.unit ?? ''}</span>
               </div>
             ))}
           </div>
