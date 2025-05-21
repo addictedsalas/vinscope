@@ -20,7 +20,7 @@ interface DecodedVin {
   PlantState?: string;
   ErrorCode?: string;
   ErrorText?: string;
-  [key: string]: any;
+  [key: string]: string | undefined;
 }
 
 interface VehicleData {
@@ -40,7 +40,7 @@ interface VehicleData {
     cylindercapacity?: number;
     technicalData?: Array<{ id: string; text: string; value: string; unit?: string }>;
     options?: Array<{ code: string; description: string }>;
-    [key: string]: any;
+    [key: string]: unknown;
   };
 }
 
@@ -134,7 +134,7 @@ export default function VehicleInfo({ vehicleData, decodedVin, error, isLegitima
   }
 
   if (!vehicleData) {
-    return <div className="min-h-[200px] w-full"></div>; // Empty space to prevent layout shifts
+    return <div className="min-h-[200px] w-full">&#160;</div>; // Empty space to prevent layout shifts
   }
 
   const { vehicleData: vehicle } = vehicleData;
@@ -144,11 +144,11 @@ export default function VehicleInfo({ vehicleData, decodedVin, error, isLegitima
     return vehicle.technicalData?.find(item => item.id === id);
   };
 
-  const power = `${vehicle.powerkw} kW (${vehicle.powerps} PS)`;
+  const power = `${vehicle.powerkw ?? 0} kW (${vehicle.powerps ?? 0} PS)`;
   const engineSize = vehicle.cylindercapacity ? `${vehicle.cylindercapacity / 1000}L` : 'N/A';
-  const acceleration = findTechnicalData('47T')?.value || 'N/A';
-  const topSpeed = findTechnicalData('46T')?.value || 'N/A';
-  const fuelConsumption = findTechnicalData('87T')?.value || 'N/A';
+  const acceleration = findTechnicalData('47T')?.value ?? 'N/A';
+  const topSpeed = findTechnicalData('46T')?.value ?? 'N/A';
+  // const fuelConsumption = findTechnicalData('87T')?.value ?? 'N/A';
 
   return (
     <div className="w-full max-w-4xl mt-8 p-8 bg-white/10 backdrop-blur-sm rounded-2xl border border-white/20 text-white shadow-xl transition-all duration-300 min-h-[400px]">
@@ -160,13 +160,13 @@ export default function VehicleInfo({ vehicleData, decodedVin, error, isLegitima
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
               </svg>
             </div>
-            <h1 className="text-3xl font-bold">{vehicle.brand?.text} {vehicle.longType}</h1>
+            <h1 className="text-3xl font-bold">{vehicle.brand?.text || ''} {vehicle.longType || ''}</h1>
           </div>
-          <p className="text-xl text-white/80">VIN: <span className="font-mono">{vehicle.vin11}</span></p>
+          <p className="text-xl text-white/80">VIN: <span className="font-mono">{vehicle.vin11 || ''}</span></p>
         </div>
         <div className="mt-4 md:mt-0 bg-white/5 px-4 py-2 rounded-lg border border-white/10">
           <p className="text-sm text-white/60">Model Year</p>
-          <p className="text-xl font-semibold">{vehicle.modelYear || 'N/A'}</p>
+          <p className="text-xl font-semibold">{String(vehicle.modelYear || 'N/A')}</p>
         </div>
       </div>
 

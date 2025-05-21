@@ -1,4 +1,20 @@
-import { NextRequest, NextResponse } from "next/server";
+import type { NextRequest } from "next/server";
+import { NextResponse } from "next/server";
+
+interface NHTSAResponse {
+  Count: number;
+  Message: string;
+  Results: Array<Record<string, string>>;
+  SearchCriteria?: string;
+}
+
+type ApiResponse<T> = {
+  data: T;
+  status: number;
+} | {
+  error: string;
+  status: number;
+};
 
 // Mercedes API client implementation in TypeScript
 class MercedesAPI {
@@ -15,7 +31,7 @@ class MercedesAPI {
     };
   }
 
-  async getVehicleInfo(vin: string, locale: string = "en_US") {
+  async getVehicleInfo(vin: string, locale = "en_US") {
     const url = `${this.baseUrl}/vehicles/${vin}`;
     const params = new URLSearchParams({
       locale,
@@ -60,7 +76,7 @@ class MercedesAPI {
 const API_KEY = "ddee6926-e2ec-43da-8d1b-fe7faea80e99";
 
 // Function to decode VIN using NHTSA API
-async function decodeVIN(vin: string) {
+async function decodeVIN(vin: string): Promise<ApiResponse<Record<string, string> | undefined>> {
   try {
     const url = `https://vpic.nhtsa.dot.gov/api/vehicles/DecodeVinValuesExtended/${vin}?format=json`;
     console.log(`NHTSA API Request: ${url}`);
@@ -72,9 +88,9 @@ async function decodeVIN(vin: string) {
       return { error: "Failed to decode VIN", status: response.status };
     }
     
-    const data = await response.json();
+    const data = await response.json() as NHTSAResponse;
     
-    if (!data || !data.Results || !Array.isArray(data.Results) || data.Results.length === 0) {
+    if (!data?.Results || !Array.isArray(data.Results) || data.Results.length === 0) {
       console.error("NHTSA API returned unexpected data structure");
       return { error: "Invalid response from VIN decoder", status: 500 };
     }
@@ -89,7 +105,7 @@ async function decodeVIN(vin: string) {
 export async function GET(request: NextRequest) {
   const searchParams = request.nextUrl.searchParams;
   const vin = searchParams.get("vin");
-  const locale = searchParams.get("locale") || "en_US";
+  const locale = searchParams.get("locale") ?? "en_US";
 
   if (!vin) {
     return NextResponse.json(
@@ -100,11 +116,11 @@ export async function GET(request: NextRequest) {
 
   // Step 1: Decode the VIN using NHTSA API
   const decodedVinResult = await decodeVIN(vin);
-  const decodedVin = decodedVinResult.status === 200 ? decodedVinResult.data : null;
+  const decodedVin = 'data' in decodedVinResult && decodedVinResult.data ? decodedVinResult.data : null;
   
   // Step 2: Check the Mercedes-Benz database
   const client = new MercedesAPI(API_KEY);
-  const mercedesResult = await client.getVehicleInfo(vin, locale as string);
+  const mercedesResult = await client.getVehicleInfo(vin, locale);
   
   // Step 3: Combine the results and determine legitimacy
   const isLegitimate = mercedesResult.status === 200;
@@ -128,9 +144,11 @@ export async function GET(request: NextRequest) {
   // If we couldn't find it in Mercedes database but could decode it, it might be fraudulent
   if (decodedVin && !isLegitimate) {
     // Check if it's a Mercedes-Benz vehicle according to NHTSA
+    const make = decodedVin.Make ?? "";
+    const manufacturer = decodedVin.Manufacturer ?? "";
     const isMercedesVIN = (
-      decodedVin.Make?.toLowerCase().includes("mercedes") ||
-      decodedVin.Manufacturer?.toLowerCase().includes("mercedes")
+      make.toLowerCase().includes("mercedes") ||
+      manufacturer.toLowerCase().includes("mercedes")
     );
     
     // Only flag as potentially fraudulent if NHTSA says it's a Mercedes

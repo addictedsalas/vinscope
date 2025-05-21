@@ -8,12 +8,21 @@ import VehicleInfo from "~/components/VehicleInfo";
 
 export default function HomePage() {
   const [isLoading, setIsLoading] = useState(false);
-  const [vehicleData, setVehicleData] = useState(null);
-  const [decodedVin, setDecodedVin] = useState(null);
+  const [vehicleData, setVehicleData] = useState<{ vehicleData: Record<string, unknown> } | null>(null);
+  const [decodedVin, setDecodedVin] = useState<Record<string, string> | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [isLegitimate, setIsLegitimate] = useState(false);
   const [potentiallyFraudulent, setPotentiallyFraudulent] = useState(false);
   const [message, setMessage] = useState<string | undefined>(undefined);
+
+  interface ApiResponse {
+    decodedVin?: Record<string, string>;
+    isLegitimate: boolean;
+    potentiallyFraudulent?: boolean;
+    message?: string;
+    mercedesData?: Record<string, unknown>;
+    error?: string;
+  }
 
   const handleSearch = async (vin: string) => {
     setIsLoading(true);
@@ -26,11 +35,11 @@ export default function HomePage() {
     
     try {
       const response = await fetch(`/api/vin?vin=${vin}`);
-      const data = await response.json();
+      const data = await response.json() as ApiResponse;
       
       // Set decoded VIN data if available
       if (data.decodedVin) {
-        setDecodedVin(data.decodedVin);
+        setDecodedVin(data.decodedVin as Record<string, string>);
       }
       
       // Set legitimacy status
@@ -39,19 +48,21 @@ export default function HomePage() {
       // Handle potentially fraudulent VINs
       if (data.potentiallyFraudulent) {
         setPotentiallyFraudulent(true);
-        setMessage(data.message);
+        if (data.message) {
+          setMessage(data.message);
+        }
       } else if (data.message) {
         setMessage(data.message);
       }
       
       // Set vehicle data if available
       if (data.mercedesData) {
-        setVehicleData(data.mercedesData);
+        setVehicleData({ vehicleData: data.mercedesData as Record<string, unknown> });
       }
       
       // Set error if present
       if (!response.ok) {
-        setError(data.error || "Failed to retrieve vehicle information");
+        setError(data.error ?? "Failed to retrieve vehicle information");
       }
     } catch (err) {
       setError(err instanceof Error ? err.message : "An unknown error occurred");
