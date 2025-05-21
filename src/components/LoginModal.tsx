@@ -25,7 +25,7 @@ export default function LoginModal({ isOpen, onClose, onLogin }: LoginModalProps
       // Simulate authentication delay
       await new Promise(resolve => setTimeout(resolve, 1000));
       onLogin(email, password);
-    } catch (err) {
+    } catch (_err) {
       setError('Authentication failed. Please try again.');
     } finally {
       setIsLoading(false);
@@ -130,7 +130,7 @@ export default function LoginModal({ isOpen, onClose, onLogin }: LoginModalProps
 
         <div className="mt-6 text-center">
           <p className="text-white/60">
-            Don't have an account?{' '}
+              Don&apos;t have an account?{' '}
             <a href="#" className="text-red-400 hover:text-red-300">
               Sign up
             </a>

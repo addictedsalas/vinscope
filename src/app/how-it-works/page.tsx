@@ -106,7 +106,7 @@ export default function HowItWorksPage() {
                 </div>
                 <div>
                   <h3 className="font-semibold mb-1">Expanding Capabilities</h3>
-                  <p className="text-white/70 text-sm">We're continuously working to add more manufacturers to our verification network, with the goal of providing comprehensive coverage for all major vehicle brands.</p>
+                  <p className="text-white/70 text-sm">We&apos;re continuously working to add more manufacturers to our verification network, with the goal of providing comprehensive coverage for all major vehicle brands.</p>
                 </div>
               </div>
             </div>

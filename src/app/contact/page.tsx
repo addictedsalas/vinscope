@@ -46,10 +46,10 @@ export default function ContactPage() {
         body: JSON.stringify(formData),
       });
       
-      const data = await response.json();
+      const data = await response.json() as { message?: string; error?: string };
       
       if (response.ok) {
-        setSubmitStatus({ success: true, message: data.message });
+        setSubmitStatus({ success: true, message: data.message ?? 'Message sent successfully' });
         // Reset form on success
         setFormData({
           name: '',
@@ -58,9 +58,9 @@ export default function ContactPage() {
           message: ''
         });
       } else {
-        setSubmitStatus({ success: false, message: data.error });
+        setSubmitStatus({ success: false, message: data.error ?? 'An error occurred' });
       }
-    } catch (error) {
+    } catch (_error) {
       setSubmitStatus({ success: false, message: 'An unexpected error occurred. Please try again.' });
     } finally {
       setIsSubmitting(false);

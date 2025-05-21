@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import Image from "next/image";
 import Header from "~/components/Header";
 import VinSearchForm from "~/components/VinSearchForm";
@@ -41,7 +41,7 @@ export default function HomePage() {
     }
     
     // User is logged in, proceed with search
-    executeSearch(vin);
+    void executeSearch(vin);
   };
 
   // Handle login
@@ -55,7 +55,7 @@ export default function HomePage() {
     if (pendingVin) {
       const vinToSearch = pendingVin;
       setPendingVin(null);
-      executeSearch(vinToSearch);
+      void executeSearch(vinToSearch);
     }
   };
   
